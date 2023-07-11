@@ -1,0 +1,63 @@
+/*
+ * NIC-Dummy CAmkES Component
+ *
+ * Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
+ *
+ *
+ * to be used as:
+ *
+ *   #include "NIC_VirtioNetVm/NIC_VirtioNetVm.camkes"
+ *   NIC_VirtioNetVm_COMPONENT_DEFINE(NIC_VirtioNetVm_1, 4096, \
+ *        virtqueue_dev1, virtqueue_drv1, niv_virtionet_callback)
+ */
+
+#pragma once
+
+import <std_connector.camkes>;
+#include <if_OS_Nic.camkes>
+import <if_OS_Logger.camkes>;
+
+
+//------------------------------------------------------------------------------
+// Declare the NIC_VirtioNetVm with a given type name:
+//   NIC_VirtioNetVm_COMPONENT_DEFINE(
+//       <name>,<bufferSize>
+//   )
+#define NIC_VirtioNetVm_COMPONENT_DEFINE( \
+    _name_, \
+    _ringbuffer_size_, \
+    _virtqueue_dev_, \
+    _virtqueue_drv_, \
+    _callback_) \
+    \
+    component _name_ { \
+        IF_OS_NIC_PROVIDE(nic, _ringbuffer_size_) \
+        \
+        uses VirtQueueDev _virtqueue_dev_; \
+        uses VirtQueueDrv _virtqueue_drv_; \
+        emits Callback self; \
+        consumes Callback _callback_; \
+        maybe uses      if_OS_Logger logServer_rpc; \
+        maybe dataport  Buf          logServer_port; \
+    }
+
+
+//------------------------------------------------------------------------------
+// Connect the optional logger:
+//   NIC_VirtioNetVm_INSTANCE_CONNECT_OPTIONAL_LOGGER(
+//       <instance>,
+//       <logger>.<rpc>, <logger>.<port_to>
+//   )
+#define NIC_VirtioNetVm_INSTANCE_CONNECT_OPTIONAL_LOGGER( \
+    _inst_, \
+    _log_rpc_, \
+    _log_port_) \
+    \
+    connection seL4RPCCall \
+        _inst_ ## _log_rpc( \
+            from    _inst_.logServer_rpc, \
+            to      _log_rpc_); \
+    connection seL4SharedData \
+        _inst_ ## _log_port( \
+            from    _inst_.logServer_port, \
+            to      _log_port_);
