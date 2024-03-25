@@ -1,5 +1,11 @@
 /*
- * Copyright 2023, Hensoldt Cyber
+ * NIC VirtioNetVm driver
+ *
+ * Copyright (C) 2023-2024, HENSOLDT Cyber GmbH
+ * 
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * For commercial licensing, contact: info.cyber@hensoldt.net
  */
 
 #include "OS_Error.h"
